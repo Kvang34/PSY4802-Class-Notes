@@ -458,6 +458,20 @@ In this case, you'll notice that I put a comma after the logical statement. This
 If we wanted to get the same subset of data as above, we could do the following:`subset(dataframe, condition)`
 
 ```{r}
+#subset will give us a piece of our data 
+
+fiveGears <- subset(mtcars, mtcars$gear==5)
+fiveGearsTwo <- subset(mtcars, gear==5)
+
+#when we run, it shows there's 0 obs. So to fix the problem, we have to add the following:
+
+mtcars$gear
+
+#If we want to create a subset with two statements 
+fiveSix <- subset(mtcars, mtcars$gear5 & mtcars$cyl==6)
+
+#If we want subset with three or more 
+thereOrMore <- subset(mtcars, mtcars$gear>=3)
 
 ```
 
@@ -473,6 +487,11 @@ After that, we need to use the library command to load the package
 ```{r}
 #install.packages("tidyverse")
 
+#Install the package in the console section. You could tell if the program is downloaded when it is listed in the package section (lower right section). You do not have to reinstall. But you have to make sure you have to call the library:
+
+library(tidyverse)
+
+#when you run it, it also tells us that you have other package you could use. There also be potential conflict when we use this program 
 ```
 
 We can use filter and select to subset data with pipes.
@@ -480,35 +499,66 @@ We can use filter and select to subset data with pipes.
 We can use `filter()` to pick a subset of rows:
 
 ```{r}
+#dataName %>% filer(agruement)
 
+mtcars %>% filter(gear==4) 
+fourthGear <- mtcars %>% filter(gear==4)
+  
 ```
 
 We can use `select()` to pick a subset of columns:
 
 ```{r}
+#dataName %>% select(column 1, column 2)
+
+mtcars %>% select(drat, mpg)
+
+#another way 
+
+mtcars %>%
+  filter(gear==4) %>%
+  select(drat, mpg)
 
 ```
 
 ####Learning Outcome 4 Practice: 1. Load the ChickWeight dataset.
 
 ```{r}
+chickenDat <- ChickWeight
+
+  #or 
+  
+data("ChickWeight")
 
 ```
 
 2.  Create a subset of data that contains information for Chick 8
 
 ```{r}
+chick8 <- ChickWeight %>% filter(Chick==8)
 
+#or 
+
+subset(ChickWeight, ChickWeight$Chick==8)
+
+#or 
+
+#ChickWeight %>%
+ # filter(Chick==8)
+  
+```
 ```
 
 3.  Create a subset of data for Diet 2 only.
 ```{r}
+dietTwo <- subset(ChickWeight, ChickWeight$diet==2)
+
 
 ```
 
 4.  Create a subset of data for all chicks weighing less than 100 gm.
 ```{r}
-
+ChickWeightLess <- subset(ChickWeight, ChickWeight$weight<=100)
 ```
 
 ### Learning Outcome 5: Describe your data effectively
@@ -518,11 +568,18 @@ We need to make sure that we can understand what our data look like before doing
 **Looking at the top/bottom of your dataset** First we can view what our data look like using `head()` and `tail()` to see the beginning and end of our data. they both use a similar format `head(dataframe, # of rows )` We'll use the diamonds dataframe (need to install ggplot if you haven't already!)
 
 ```{r}
+# head(dataName)
+
+head(ChickWeight)
+head(ChickWeight, n==100)
 
 ```
 
 ```{r}
+#tail(dataName)
 
+#tail(ChickWeight)
+#tail(ChickWeight, n==100)
 ```
 
 ```{r}
@@ -534,7 +591,7 @@ This lets us see just part of our data to make sure it loaded appropriately/is w
 **Summary** We can also describe our data using a function called `summary()`.
 
 ```{r}
-
+summary(ChickWeight)
 ```
 
 What do you notice about the summaries?
@@ -549,59 +606,95 @@ If we need the # of observations, we can use `length()` or `nrow()` to get this 
 
 ```{r}
 
+# length tells us how many column is in the dataset 
+length(ChickWeight$Chick)
+length(ChickWeight) 
+
+
+# to find the # of rows in the dataset 'nrow(dataName)'
+nrow(ChickWeight)
+
+#to find the # of colunn in the dataset 'ncol(dataName)'
+ncol(ChickWeight)
 ```
 
 We can also take the average by using the function `mean()`.
 
 ```{r}
+mean(ChickWeight)
 
+#If you are missing data, do 
+
+mean(ChickWeight$Time, na.rm=TRUE)
+
+#So it would remove unimportant datas because some data may be incomplete
 ```
 
 We can get the standard deviation using `sd()`.
 
 ```{r}
+sd(ChickWeight)
 
+#You could also remove missing values for this as well by using 'na.rm='
 ```
 
 `var()`gives us the variance
 
 ```{r}
-
+var(ChickWeight$Time)
 ```
 
 `range()` gives us the range
 
 ```{r}
-
+range(ChickWeight$Time)
 ```
 
 ###Learning Outcome 5 Practice 
 
 1. Summarize the ChickWeight dataset
 ```{r}
-
+summary(ChickWeight)
 ```
 
 2.  Find the mean of the weight column
 
 ```{r}
-
+mean(ChickWeight$weight)
 ```
 
 3.  Summarize the data for just the 1st chick
 
 ```{r}
-#head(ChickWeight, n=1)
+#the code for the first row 
+summary(head(ChickWeights, n=12))
+
+#or
+ChickOne <- ChickWeight %>% filter(chick==1)
+Summary(ChickOne)
+
+#or 
+summary(subset(ChickWeight, ChickWeight$Chick==1))
 
 ```
 
 4.  What is the variance of the 1st chick's weight?
 
 ```{r}
+#var(ChickWeight$weight[ChickWeight$Chick==1])
 
+var(ChickOne$weight)
 ```
 
 5.  What is the range in weight for each chick posted in the dataset?
 ```{r}
+#to find the range of each individual chicks
+range(ChickWeight$weight[ChickWeight$Chick==1])
+range(ChickWeight$Weight[ChickWeight$Chick==2])
+
+#However if we do this, we would have to repeat for 48 chicks
+
+
+
 
 ```
