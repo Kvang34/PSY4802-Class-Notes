@@ -135,20 +135,27 @@ diamonds$size[diamonds$carat<=1] < "small"
 
 1. Change all of the column names in mtcars to capital letters
 ```{r}
-
+colnames(mtcars) <- toupper(colnames(mtcars))
+colnames(mtcars)
 ```
 2. Change the name of the 9th column to reflect the values in the am column description
 ```{r}
+colnames(mtcars)[9] <- "transmission"
+colnames(mtcars)
 
+#by reflect, you enter "?mtcars" in the console and search what the variables means. When you enter the code, it tells you that "am represent transmission (0=automatic, 1=manual)"
 ```
 
 3. Change the 4th column name to all lowercase letters 
 ```{r}
+colnames(mtcars)[4] <- tolower(colnames(mtcars)[4])
 
+colnames(mtcars)
 ```
 
 ```{r}
-
+colnames(mtcars) <- tolower(colnames(mtcars))
+colnames(mtcars)
 ```
 
 ## Learning Outcome 2: Explain different classes of variables and how to change the class
@@ -168,37 +175,68 @@ We talked about this a little bit last week, but there are different classes (ty
 
 You can check the class of your data using `class()`
 ```{r}
+#If we don't know what type of class the values are, we could check them in R using the code 'class()'. For example, if we want to know the class oc carat in the diamond data we do: 
 
+class(diamonds$carat)
+
+#when we run the code, it tells us that the class for this column is numeric 
 ```
 
 If you want to change the class of your variable, you can assign `as.Preferredclass(dataframe$column)` to the column name
 
 ```{r}
 "is.classname"
+is.factor(mtcars$transmission)
 
-"as.classname"
-
+"as.classname" 
+mtcars$transmission2 <- as.factor(mtcars$transmission)
 #make a new column 
-
+class(mtcars$transmission)
+class(mtcars$transmission2)
 ```
 **DOUBLE CHECK YOUR DATA**
+
+```{r}
+mtcars$transmission <- factor(mtcars$transmission)
+is.factor(mtcars$transmission)
+
+#when we run the code, it tell us that it is true that class for 'transmission' is a factor 
+
+```
 
 ### Learning Outcome 2 Practice:
 1. Check the class of the horsepower column (hp) 
 ```{r}
-
+class(mtcars$hp)
 ```
 
 2. Change the class of horsepower to a factor
 ```{r}
-
+mtcars$hp2 <- as.factor(mtcars$hp)
+class(mtcars$hp)
 ```
 
 3. Look at summaries of horsepower as a factor and as a number. What do you notice? 
 ```{r}
+summary(mtcars$hp)
 
+summary(mtcars$hp2)
+
+#when we run the code, we notice the variables for 'mtcars$hp' give us a the mean, max, min, sq. 
+
+#For 'mtcars$hp2', we got a category for how many cars got that horsepower  
 ```
+##IMPORTANT TO DOUBLE CHECK DATA
+```{r}
+mtcars$hp2
+mtcars$hp3 <- as.numeric(mtcars$hp2)
+mtcars$hp3
 
+#If we want to convert hp2 into a numeric number, we can't do 'numberic(mtcars$hp2)". Instead, we would do the folliwng: 'as.newClass(levels(dataName$columnName)[dataName$columnName])'
+
+as.numeric(levels(mtcars$hp2)[mtcars$hp2])
+mtcars$hp
+```
 ## Learning Outcome 3: Create your own function
 
 There are lots of functions in R that are helpful, but some times you need to make your own. I do this a lot when cleaning data.
@@ -214,36 +252,55 @@ You can make a simple function that adds two to a set of numbers
 Before we make the function, we'll make a vector of numbers (1-10) as our input
 
 ```{r}
+numbers <- 1:10
 
 ```
 
 then, we'll name our function addTwo and give it one argument or input
 
 ```{r}
-
+addTwo <- function(number){
+  number + 2
+}
 ```
 if we run this correctly, it should show up in the environment (top right). 
 
 Then, we can use our function to add two to our vector:
 
 ```{r}
-
+addTwo(numbers)
 ```
 
 One thing to note- anything you make in a function **stays in the function.** If you want to save it to a dataframe, you treat your new function just like any other R function (i.e. you need to assign the output to a column or variable)
 
 ```{r}
 "dataframe$column <- function"
+plusTwo <- addTwo(numbers)
 
+#When we run the code, we see we've created a vector called plusTwo 
+
+#If we want to put it into a data, we do 
+test <- data.frame(numbers)
+test$plusTwo <- addTwo(test$numbers)
 ```
 
 ## Practice:
 function to multiply by 7
 ```{r}
-
+multiplySeven <- function(seven){
+  seven * 7
+}
 ```
 test it out
 ```{r}
+multiplySeven(numbers)
+
+#If we want to put into a data set 
+sevenDat <- data.frame(numbers)
+sevenDat$timesSeven <- multiplySeven(numbers)
+
+#If we want to save test data frame
+test$timesSeven <- multiplySeven(numbers)
 
 ```
 
@@ -251,10 +308,23 @@ test it out
 `paste()`
 ```{r}
 
+#'paste()' let you paste two diffeent things together. It also help you remove the quotation between the phrases. FOr example, when we did 
+
+favoriteThings <- function(things){
+  c("my favorite is", things)
+}
+
+#This code give us "my favorite is" "green tea"
+
+#If we use, 'paste()', it give us "my favorite is green tea"
+
+favoriteThings <- function(things){
+  paste("my favorite is", things)
+}
 ```
 test
 ```{r}
-
+favoriteThings("green tea")
 ```
 
 ### Multiple argument functions
@@ -262,28 +332,49 @@ test
 We can make functions with more than one argument. For instance we could multiply all of the numbers in our original vector by a second vector 10-1
 
 ```{r}
+#create a vector for numbers counting backward
+backwards <- 10:1
+backwards
+```
+```{r}
+#create a function to multiply the numbers
 
+multiplyBy <- function(number1, number2){
+  number1*number2
+}
+```
+
+```{r}
+multiplyBy(numbers,backwards)
 ```
 
 ### Learning Outcome 3 Practice
 
 1. Make a function that divides numbers by 100. 
 ```{r}
-
+divideBy <- function(number1){
+  number1 /100
+}
 ```
 
 2. Test your function on the mtcars mpg column.
 ```{r}
-
+divideBy(mtcars$mpg)
 ```
 
 3. Make a function that finds the mean of a column and divides it by the standard deviation of another column.
 ```{r}
-
+columnMean <- function(column1, column2){
+  (mean(column1)/sd(column2))
+}
 ```
 
 4. Test it on the mpg column and hp column. 
 ```{r}
+hpColumn <- mtcars$hp
+#columnMean(mtcars$mpg,mtcars$hp)
+
+#code is not running TT
 
 ```
 
@@ -295,11 +386,21 @@ Let's say we wanted to create a column in the chickweight dataset that indicated
 
 We'd have to make a new column
 ```{r}
+#first look at the summary of chickWeights by typeing the following in the console 
+
+"summary(as.factor(chickWeight$time))"
+
+# create a new column called "time point" 
+ChickWeight$timePoint <- NA
 
 ```
 and then fill in that new column by indexing the days column, which has 12 different days. 
 ```{r}
+# any number 10 and below is "beginning"
+ChickWeight$timePoint[ChickWeight$time<=10] <- "beginning"
 
+# any number 12 and above is "end"
+ChickWeight$timePoint[ChickWeight$time>10] <- "end"
 ```
 
 We could use a **for loop** though to go through each row of the data set and fill out the new column (beginning or end) based on the days in the Time column.
@@ -322,13 +423,25 @@ ifelse(logical statment, "TRUE", "FALSE")
 
 
 ```{r}
+ChickWeight$timePoint2 <- NA 
+for (i in 1:nrow(ChickWeight)){
+ ChickWeight$timePoint2[i] <- ChickWeight$time[i]<=10
+}
 
+#i is a placeholder 
 ```
 
 ### Practice for Learning Outcome 4: 
 
 1. Create a for loop that will multiply each number in a vector by 4. Test it with a vector containing the numbers 10:100. 
 ```{r}
+vectorNum <- 10:100
+
+#still confuse with the format 
+
+for(i in vectorNum){
+ vectorNum*4
+}
 
 ```
 
