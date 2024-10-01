@@ -516,7 +516,7 @@ R lets you combine if/else statements into a single function, ifelse().
 
 We can use this to accomplish the same thing we did above:
 ```{r}
-mtcars$mpg3 <- ifelse(mtcars$mpg>25, "good mileage", "bad mileage"
+mtcars$mpg3 <- ifelse(mtcars$mpg>25, "good mileage", "bad mileage")
 ```
 
 ### Learning Outcome 5 Practice: 
