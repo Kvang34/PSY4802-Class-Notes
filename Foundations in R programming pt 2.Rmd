@@ -371,10 +371,7 @@ columnMean <- function(column1, column2){
 
 4. Test it on the mpg column and hp column. 
 ```{r}
-hpColumn <- mtcars$hp
-#columnMean(mtcars$mpg,mtcars$hp)
-
-#code is not running TT
+columnMean(mtcars$mpg,mtcars$hp)
 
 ```
 
@@ -386,7 +383,7 @@ Let's say we wanted to create a column in the chickweight dataset that indicated
 
 We'd have to make a new column
 ```{r}
-#first look at the summary of chickWeights by typeing the following in the console 
+#first look at the summary of chickWeights by typing the following in the console 
 
 "summary(as.factor(chickWeight$time))"
 
@@ -406,7 +403,7 @@ ChickWeight$timePoint[ChickWeight$time>10] <- "end"
 We could use a **for loop** though to go through each row of the data set and fill out the new column (beginning or end) based on the days in the Time column.
 
 to make a for loop: 
-for (individual in bigger group){
+for (i in 1: (individual in bigger group)){
 thing you want to happen. 
 }
 
@@ -428,26 +425,47 @@ for (i in 1:nrow(ChickWeight)){
  ChickWeight$timePoint2[i] <- ChickWeight$time[i]<=10
 }
 
-#i is a placeholder 
+#i is a placeholder for anything that we want to put into the loop (input)
+
+#If we do "1 in 200:nrow()...", this would run the loop/code starting at 200 
 ```
 
 ### Practice for Learning Outcome 4: 
 
 1. Create a for loop that will multiply each number in a vector by 4. Test it with a vector containing the numbers 10:100. 
 ```{r}
-vectorNum <- 10:100
 
-#still confuse with the format 
-
-for(i in vectorNum){
- vectorNum*4
+for(i in 10:100){
+ print(i*4)
 }
 
+#You could make a vector 
+testInput <- 1:100
+for (i in 1:length(testInput)){
+  print(i*4)
+}
+#You can also make a data frame 
+
+#testOutput <- rep(NA, length(testInput))
+#test <- cbind.data.frame(testInput, testOuput)
+#for(i in 1:nrow(test)){
+  #test$testOutput[i] <- test$testInput[i] * 4
+}
 ```
 
 2. Create a new column in the mtcars data set that indicated whether a car has good mileage (over 25 mpg) or bad mileage (25 mpg or fewer).  
 ```{r}
+#check with column name 
 
+colnames(mtcars)
+
+#create a new column 
+mtcars$mileage <- NA
+
+#create a for loop
+for (i in 1: nrow(mtcars)){ #you can use 'length(mtcars$mpg)'
+  mtcars$mileage[i] <- mtcars$mpg[i]> 25 
+}
 ```
 
 ## Learning Outcome 5: Create your own if statements and ifelse statments
@@ -463,11 +481,26 @@ what you want to happen
 
 Let's try one: in this case, we'll make an if statement to milage
 ```{r}
+#create a new column 
+mtcars$goodMileage2 <- NA
 
+#create an if statement for the first car
+if(mtcars$mpg[1]>25){
+  print("good mileage")
+}
+else {
+  print("bad mileage")
+}
 ```
 ### else statement
 ```{r}
-
+mtcars$goodMileage2 <- NA
+#for (i in 1: nrow(mtcars)){ #you can use 'length(mtcars$mpg)'
+ # if(mtcars$mpg[i]> 25){
+    
+   # "good mileage"
+  #}
+#else {mtcars$goodMileage2[i] <- "bad mileage"}
 ```
 
 ```{r}
@@ -483,7 +516,7 @@ R lets you combine if/else statements into a single function, ifelse().
 
 We can use this to accomplish the same thing we did above:
 ```{r}
-
+#mtcars$mpg3 <- ifelse(mtcars$mpg>25, "good mileage", "bad mileage"
 ```
 
 ### Learning Outcome 5 Practice: 
