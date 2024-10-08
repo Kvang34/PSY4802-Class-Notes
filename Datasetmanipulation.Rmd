@@ -48,7 +48,7 @@ There are many **many** ways to transform data from wide to long and vice versa.
 
 We also need to determine what type of data we have. To make sure we're all on the same page, a quick review: 
 **Long data:** have multiple rows per participants. Each row represents a unique measurement. (in our example, each participant would have two rows: the baseline measure and the measure after the game). 
-**Wide data:** There is only one row per participant. Each colum represents a unique measurement. (in our example, the data is currently in wide format).
+**Wide data:** There is only one row per participant. Each column represents a unique measurement. (in our example, the data is currently in wide format).
 
 Knowing the type of data you are using and how to change it is important because you may need to change it depending on the analyses you'd like to run and how you'd like to graph the data.  
 
@@ -72,11 +72,18 @@ aggressionLong <- pivot_longer(aggressionDat, c("baselineAggression", "postAggre
 
 #In here, we change the name of the column to "timepoint" and the values to "aggressionScore"
 #When we run the code, we know it is a long data when the two line for one particpants is next to each other 
+# newDataName <- pivot_longer(dataName, c(), names_to= "newColumnName", values_to= "valueNames)"
 
-#another of doing this
+#another way of doing this is..
 aggressionLongA <- aggressionDat %>% 
   pivot_longer(c("baselineAggression","postAggression"), names_to="timePoint", values_to="aggressionScore")
 
+# newDataName <- dataName %>%
+  #pivot(!columnToIgnore, names_to="newColumnName", values_to="valueNames)
+
+
+# newDataName <- dataName %>% 
+  #pivot_longer(dataName, c(colnames(dataName)[first column:last column]), names_to="new column name", values_to="valueNames")
 ```
 **Note:** remember to save the data to your environment. 
 
@@ -92,7 +99,8 @@ data("relig_income")
 ```{r}
 colnames(relig_income)
 
-# religionLong <- pivot_longer(relig_income, c("religion", ""))
+religionIncomeLong <- pivot_longer(relig_income, c("<$10k", "$10-20k","$20-30k","$30-40k","$40-50k", "$50-75k", "$75-100k","$100-150k", ">150k"), names_to= "levels of income", values_to = "income freqency")
+
 ```
 
 **gather** 
@@ -102,18 +110,33 @@ key- what you'd like the column containing old column names to be called
 value- what you'd like the scores column to be called
 
 ```{r}
+#this is another way to go from wide to long data format 
+
+#first, install the tidyr library 
+library(tidyr)
+
+aggressionLong2 <- gather(aggressionDat, key="timepoint", value="aggressionScore", c("baselineAggression","postAggression"))
+#key is the new column name 
+#value are the name of values in the column 
 
 ```
 
 **melt**
 `melt()` is a function in the reshape2 library. It's another way to create long data
 ```{r}
+#install the reshape2 library 
+library(reshape2)
 
 ```
 `melt()` uses the following arguments: 
 `melt(dataframe, id.vars, measure.vars, variable.name, value.name)`
 ```{r}
+aggressionLong3 <- melt(aggressionDat, id.vars= c("subjNo","ageGroup","parentReportGender", "condition"), measure.var= 
+c("baselineAggression","postAggression"),
+variable.name="timepoint", value.name="aggressionScore")
 
+#id.var= are the columns we don't change 
+#measure.var= are the columns we will change
 ```
 
 ### Learning Outcome 2: Transform data from long to wide
@@ -123,6 +146,16 @@ As above, we'll restructure the data in three ways. Again, some ways are more in
 The pair function for pivot_longer. It has the following arguments: 
 `pivot_wider(dataset, id columns, names_from, values_from)`
 ```{r}
+#Open the billboard data 
+data(billboard)
+
+#Looking at the data, it is a wide format 
+#Before we transform the data, we should decided what column should be changed in the data.In this data, we would change the week column and add a ranking column 
+
+#transforming a long to wide data 
+
+
+aggressionWide <- pivot_wider(aggressionLong, id_cols= c(colnames(aggressionLong)[1:4]), names_from="timePoint", values_from="aggressionScore")
 
 ```
 
@@ -131,7 +164,7 @@ is the pair function for gather. It has the following arguments:
 `spread(data, key, value, columns to make wide)`
 key = timepoint; value = aggression score
 ```{r}
-
+aggressionWide2 <- spread(aggressionLong, key= "timePoint", value=aggressionScore)
 ```
 
 **dcast**
@@ -140,6 +173,10 @@ dcast has the following arguments:
 `dcast(data, formula)`
 ```{r}
 #datWide3<- dcast(aggressionLong3, formula= subjNo+ ageGroup+parentReportGender+condition~variable)
+
+#format: newDataName <- dcast(dataName, formula= list the column that change ~ column that don't change)
+
+aggressionWide3 <- dcast(aggressionLong, formula= subjNo + ageGroup + parentReportGender + condition ~ timePoint)
 ```
 **Note:** dcast is really not intuitive. I pretty much determine the correct order through trial and error every time. 
 
@@ -318,13 +355,3 @@ If you open the dataset, you can see that we have both height and mass variables
 ```{r}
 
 ```
-
-
-
-
-
-
-
- 
-
-
