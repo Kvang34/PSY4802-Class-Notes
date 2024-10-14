@@ -233,15 +233,29 @@ data(sleep)
 ```{r}
 #Change from long to wide data 
 
+sleepWide <- sleep %>%
+  pivot_wider(names_from= "group", values_from= "extra")
 
+#name is the new column
+#values are argument we want to put inside the cell
 
 ```
 4) Go back to the chick weight dataset and take all data from chick 3 and put it in wide format 
 ```{r}
-
+data("ChickWeight")
 ```
 
 ```{r}
+#Column names
+colnames(ChickWeight)
+
+#Data with three chicks
+chickThree <- ChickWeight %>%
+  filter(Chick == 3)
+
+#It is a long data, so we gotta convert to a wide data 
+chickThreeWide <- chickThree %>%
+  pivot_wider(names_from = "")
 
 ```
 
