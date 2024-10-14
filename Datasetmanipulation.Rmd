@@ -183,17 +183,18 @@ aggressionWide3 <- dcast(aggressionLong, formula= subjNo + ageGroup + parentRepo
 #### Learning Outcome 2: Practice
 1. Open the ChickWeight dataset.
 ```{r}
-
+data(ChickWeight)
 ```
 
 2. Convert it from long to wide format. 
 ```{r}
-
+colnames(ChickWeight)
+chickWide <- pivot_wider(ChickWeight, id_cols = c("Chick","Diet"), names_from = "Time", values_from="weight")
 ```
 
 3. Convert from wide to long. 
 ```{r}
-
+chickLong <- pivot_longer(chickWide, cols= c(colnames(chickWide)[3:14]), names_to = "Time", values_to = "Weight")
 ```
 
 
@@ -209,6 +210,9 @@ you can use some of the commands we've already used in a different structure
 `data %>% pivot_longer(columns used, name for "name" column, name for "value column")`
 
 ```{r}
+chickLong1 <- chickWide %>% 
+  pivot_longer(cols= c(colnames(chickWide)[3:14]), names_to= "time", values_to= "weight") %>%
+  filter(Chick==1)
 
 ```
 
@@ -216,15 +220,20 @@ you can use some of the commands we've already used in a different structure
 
 1) open sleep data set
 ```{r}
-
+data(sleep)
 ```
 
 2) identify the type of data
-
+```{r}
+#It is a long data
+```
 
 3) change it to the other type
 
 ```{r}
+#Change from long to wide data 
+
+
 
 ```
 4) Go back to the chick weight dataset and take all data from chick 3 and put it in wide format 
@@ -355,3 +364,13 @@ If you open the dataset, you can see that we have both height and mass variables
 ```{r}
 
 ```
+
+
+
+
+
+
+
+ 
+
+
