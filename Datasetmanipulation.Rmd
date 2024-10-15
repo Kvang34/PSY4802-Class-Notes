@@ -239,6 +239,7 @@ sleepWide <- sleep %>%
 #name is the new column
 #values are argument we want to put inside the cell
 
+
 ```
 4) Go back to the chick weight dataset and take all data from chick 3 and put it in wide format 
 ```{r}
@@ -255,7 +256,7 @@ chickThree <- ChickWeight %>%
 
 #It is a long data, so we gotta convert to a wide data 
 chickThreeWide <- chickThree %>%
-  pivot_wider(names_from = "")
+  pivot_wider(names_from = "Time", values_from="weight")
 
 ```
 
@@ -265,11 +266,25 @@ Some times, we have datasets that we need to join or merge (e.g. participant dem
 We'll practice on the following code: 
 Make a data frame with subject number and simulated anxiety scores
 ```{r}
+subjNo <- aggressionDat$subjNo
+anxietyScore <- sample(x= 1:20, size = nrow(aggressionDat), replace= TRUE)
+
+#x is what you're sampling from 
+# size is the number of things to pull
+# replace is true 
+
+AnxietyData <- cbind.data.frame(subjNo, anxietyScore)
+
+# When we run the data, we have another graph that shows the subjNo and anxietyScore 
 
 ```
 use `left_join()`
 ```{r}
 
+# to combine the data together, we will use 'left_join(data we want in the front, data we want in the back/next)'
+
+library(dplyr)
+datFinal <- left_join(aggressionDat, AnxietyData)
 ```
 
 `right_join()` does the same thing, but places the new column to the right. 
@@ -278,12 +293,14 @@ use `left_join()`
 1. Create a dataframe (n=48) that includes subject numbers and executive function scores (ranging from 0-16).
 ```{r}
 
-
+subjNo <- aggressionDat$subjNo 
+EF <- sample(x= 0:16, size = nrow(aggressionDat), replace= TRUE)
+EFdata <- cbind.data.frame(subjNo, EF)
 ```
 
 2. Join your dataset in #1 to the original Aggression dataset. 
 ```{r}
-
+dat <- left_join(datFinal, EFdata)
 ```
 
 ### Learning Outcomes 4 & 5: Use functions to clean data (and pipes)
@@ -296,7 +313,9 @@ As we talked about before, there are different classes(or types) of data in R. F
 Let's take the example from our final dataset (datFinal). We can change parentReportGender to have levels of "boy" and "girl."
 we'll check what class it is first
 ```{r}
+finaldata$parentReportGender
 
+# When we run the code, we have "M" and "F"
 ```
 it's currently a character, so we can change it to a factor using as.factor (which we talked about last week). Then, we can use the function `levels()` to change the data. 
 
@@ -305,35 +324,55 @@ Note: because I saved these as different columns, I can directly compare the dat
 Also, keep in mind that changing levels of a factor requires you to know **know what levels are currently in your data.** You can check this by either printing the column as I've done above, or using the levels command:
 `factor(data, levels = x,y,z)`
 ```{r}
+aggressionDat$parentReportGender <- as.factor(aggressionDat$parentReportGender)
 
+levels(aggressionDat$parentReportGender) <- c("girl","boy")
+
+# level (dataName$columnName) <- c(first value, second value)
+
+# Another way to do this is by
+
+aggressionDat$parentReportGender <- factor(aggressionDat$parentReportGender, levels= c("girl", "boy"))
+
+# To check the order is correct by writing 'dataName$columnName' 
+aggressionDat$parentReportGender
+
+# When we run the code, 'M' appear as 'boy' and 'F' as 'girl'
 ```
 I'd recommend this version, particularly if you have a large data set. 
 
 #### Practice: 
 1. Create a column in the final dataset that contains condition as a factor. 
 ```{r}
+finaldata$factors <- finaldata$condition
 
 ```
 
 2. Change the levels to "e" for exclusion and "i" for inclusion. 
 ```{r}
 
+finaldata$factors <- as.factor(finaldata$factors)
+
+levels(finaldata$factors) <- c("e","i")
+
 ```
 
 3. Check that you have done this successfully. 
 ```{r}
+finaldata$factors
 
+# sth is off
 ```
 
 **reordering factors**
 You may have noticed that writes levels of a factor in alphabetical order. Sometimes, this is really helpful. Other times, it can complicate statistical models and graphs because there are more meaningful ways to reorder your data. You can reorder the data using relevel. 
 It has the general structure `relevel(column, reference level)`
 ```{r}
-
+aggressionDat <- relevel(aggressionDat$parentReportGender, ref= "girl")
 ```
 If you have more levels, you can specify the order in your factor function 
 
-`factor(data, levels= order of levels)`
+`factor(dataName$columnName, levels= order of levels)`
 
 #### Practice
 1. Reorder the condition variable in your final dataset so that inclusion is the reference category. 
@@ -347,12 +386,17 @@ For those of you who have survey data, you may be interested in using a function
 
 I'm going to make a new column to demonstrate this.
 ```{r}
-
+aggressionDat$attention <- rep(1:6,8)
+aggressionDat$attention
 ```
 To reverse code it, we would write
 `recode(data, 'how to recode')`
 There is also a recode in the car package
 ```{r}
+# install the car library, but my packages doesn't have it ??
+
+library(callr)
+# aggressionDat$attention <- carl:: record(aggressionDat$attention, "6=1; 5=2; 4=3; 3=4;2=5;1=6")
 
 ```
 Note: you'll notice that I wrote "car::" before the record function. This is necessary sometimes. Remember, the libraries are made by **different** people. People use the same words for different functions. So we need to tell R which of the functions we want to use. 
@@ -363,7 +407,7 @@ separate uses the following arguments:
 `separate(data, columns, into, sep)`
 let's look at the subject column in our dataset
 ```{r}
-
+# aggressionDat %>% separate(subjNo, into = c("condition2", "subj"), sep=1)
 ```
 
 **Mutate** 
@@ -371,12 +415,12 @@ When you are cleaning data, there are occasionally instances where you need to u
 
 To practice using Mutate, we're going to use a messier dataset
 ```{r}
-
+data("starwars")
 ```
 
 If you open the dataset, you can see that we have both height and mass variables. You can see that height is in cm, so we can convert height to inches
 ```{r}
-
+starwars2 <- starwars %>% mutate(meters=height*100)
 ```
 
 
