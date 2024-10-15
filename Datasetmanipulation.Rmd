@@ -344,24 +344,24 @@ I'd recommend this version, particularly if you have a large data set.
 #### Practice: 
 1. Create a column in the final dataset that contains condition as a factor. 
 ```{r}
-finaldata$factors <- finaldata$condition
+datfinal$factors <- datfinal$condition
 
 ```
 
 2. Change the levels to "e" for exclusion and "i" for inclusion. 
 ```{r}
 
-finaldata$factors <- as.factor(finaldata$factors)
+datfinal$factors <- as.factor(datfinal$factors)
 
-levels(finaldata$factors) <- c("e","i")
+levels(dafinal$factors) <- c("e","i")
 
 ```
 
 3. Check that you have done this successfully. 
 ```{r}
-finaldata$factors
+datfinal$factors
 
-# sth is off
+
 ```
 
 **reordering factors**
