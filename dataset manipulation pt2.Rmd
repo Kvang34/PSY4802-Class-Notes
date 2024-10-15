@@ -1,0 +1,119 @@
+---
+title: "Dataset manipulation pt 2"
+author: "Amanda Mae Woodward"
+date: "2024-10-15"
+output: html_document
+---
+
+*It is okay to turn in assignment late, make sure to turn it in before Tuesday class *
+
+We're going to use this part of class to review how to do the learning outcomes from the dataset manipulation notes. 
+
+### load data
+1. Open the palmerpenguins library
+```{r}
+
+# Type in the console 'library(palmerpenguins)'
+
+library(palmerpenguins)
+
+```
+
+2. Open the penguins dataset
+```{r}
+data("penguins")
+```
+
+3. Explore the raw dataset. What can you find out about it? 
+
+The data looks at the penguin body size, clutch, and blood sample.
+- Penguin data is a subset of penguins_raw
+- Penguin data looks better because its more clear  
+
+4. Are the data in long or wide format? 
+```{r}
+# The penguin data is a long format because multiple penguins have more than one row.  
+
+# How to figure it out? We can look at the species, sample number, indidviaul ID
+
+# Another way to look at the summary of the column 'sample number'
+summary(penguins_raw$`Sample Number`)
+summary(as.factor(penguins_raw$`Sample Number`))
+
+# For species 
+summary(as.factor(penguins_raw$Species))
+
+# For ID 
+summary(as.factor(penguins_raw$`Individual ID`)) # This is what we'll be using in class because it looks at the individual penguins 
+```
+
+5. let's practice going from one format to the other. 
+
+6. create two datsets. One should have the individual id, region, and island. The other should have individual id, species, flipper length, culmen length, culmen depth, and body mass. 
+
+```{r}
+# We will be using flipper length 
+
+library(tidyverse)
+
+tinyPenguins <- penguins_raw %>% select("Individual ID", "Sample Number", "Flipper Length (mm)")
+
+# Notes: individual id is not nested within sample number. We can still run this code, but its going to be messy. 
+
+
+# Change data tinyPenguin from long to wide format 
+penguinWide <- pivot_wider(tinyPenguins, id_cols= "Individual ID", names_from= "Sample Number", values_from= "Flipper Length (mm)")
+
+```
+
+```{r}
+
+# make a long data longer 
+penguinLongData <- penguins_raw %>% pivot_longer(cols= c("Culmen Length (mm)", "Culmen Depth (mm)", "Flipper Length (mm)", "Body Mass (g)"), names_to= "bodyMeasure", values_to= "measurements")
+
+# make the longer data to wide 
+penguinWide2  <- penguinLongData %>% pivot_wider(id_cols= c("Individual ID", "Sample Number"), names_from= "bodyMeasure", values_from= "measurements")
+
+# When we run, we get the Individual ID and Sample Number column in the front of the data. The body measure are the columns and the measurement are the values. 
+```
+
+7. Join the two datasets you made together.
+```{r}
+# Data of the first part 
+penguinA <- penguins_raw %>% select("Individual ID", "Region","Island")
+
+
+# Data of the second part
+penguinB <- penguins_raw %>% select("Individual ID", "Culmen Length (mm)", "Culmen Depth (mm)", "Flipper Length (mm)", "Body Mass (g)")
+
+
+```
+
+8. Separate the species column into the common name and the scientific name 
+```{r}
+a <- left_join(penguinA, penguinB)
+
+# This combine the two data set 
+
+# To seperate penguin_raw
+b <- separate(penguins_raw, col = "Species", into= c("commonName", "scientificName"), sep = "")
+```
+
+9. change the levels of clutch completion to indicate whether the penguin has two eggs or does not have two eggs
+
+```{r}
+
+```
+
+10. create a column that has body mass in kilograms.
+
+```{r}
+
+```
+
+11. copy island to a new column. Recode this variable so that each island is renamed to be just the first initial
+
+```{r}
+
+```
+
