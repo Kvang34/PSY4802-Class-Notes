@@ -98,22 +98,38 @@ a <- left_join(penguinA, penguinB)
 # To seperate penguin_raw
 b <- separate(penguins_raw, col = "Species", into= c("commonName", "scientificName"), sep = "")
 ```
-
 9. change the levels of clutch completion to indicate whether the penguin has two eggs or does not have two eggs
-
 ```{r}
+penguins_raw$`Clutch Completion` 
+
+penguins_raw$`Clutch Completion` <- as.factor(penguins_raw$`Clutch Completion`)
+levels(penguins_raw$`Clutch Completion`) <- c("not two eggs", "two eggs")
+penguins_raw$`Clutch Completion`
 
 ```
 
 10. create a column that has body mass in kilograms.
 
 ```{r}
+penguins_raw$`bodyMass(kg)` <- NA
+```
+
+```{r}
+penguins_raw$`bodyMass(kg)` <- penguins_raw$`Body Mass (g)` /1000
 
 ```
 
 11. copy island to a new column. Recode this variable so that each island is renamed to be just the first initial
 
 ```{r}
+penguins_raw$`island2` <- NA
+```
 
+```{r}
+penguins_raw$`island2` <- penguins_raw$Island 
+
+library(car)
+summary(as.factor(penguins_raw$island2))
+penguins_raw$island2 <- car:: recode(penguins_raw$island2, recodes= "'Biscoe'='B'; 'Dream'='D';'Torgersen'='T'", separator= ";")
 ```
 
