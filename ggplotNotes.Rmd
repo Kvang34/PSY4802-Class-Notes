@@ -165,40 +165,81 @@ Next, we'll talk about how to make a bar graph. We can do this the same way we m
 We'll practice on the "clarity" column. (I'll use another theme so you can see the differences)
 
 ```{r}
-ggplot(diamonds, aes(price))+geom_bar()
+ggplot(diamonds, aes(clarity))+geom_bar()
 ```
 
 **Changing the x and y label axes** 
 You'll notice that our y axis is "count" and our x axis is "clarity". These are not particularly informative. We can change these using xlab and ylab. 
 ```{r}
-
+ggplot(diamonds, aes(clarity))+ geom_bar()
 ```
 
 you can also choose to use labs, with x, y, and title
 ```{r}
+# change x and y label axis name 
+ggplot(diamonds, aes(clarity))+ geom_bar() + xlab("Clarity of Diamond") + ylab("Frequnecy") + theme_dark()
+
+```
+
+```{r}
+# Another way to change the axis name
+ggplot(diamonds, aes(clarity))+ geom_bar() + labs(x= "Clarity of Diamond", y="Frequency")
+
+```
+
+```{r}
+# change the title 
+ggplot(diamonds, aes(clarity))+ geom_bar() + labs(x= "Clarity of Diamond", y="Frequency", title= "Diamond Clarity")+ theme_bw()
 
 ```
 
 Note - \n- starts a new line 
 ```{r}
+ggplot(diamonds, aes(clarity))+ geom_bar() + labs(x= "Clarity of \n Diamond", y="Frequency", title= "Diamond Clarity")+ theme_bw()
 
+```
+
+```{r}
+# Adding a subtitle
+ggplot(diamonds, aes(clarity))+ geom_bar() + labs(x= "Clarity of \n Diamond", y="Frequency", title= "Diamond Clarity", subtitle= "from diamonds dataset")+ theme_bw()
 ```
 
 **Using means in bar graphs**
 Sometimes, we don't just want the count of a category to make a bar graph. For instance, we may want to use a mean. We can do this by using the summary data frame we made before. 
 
 ```{r}
+# using two variables - cut and price
+ggplot(pricebyCut, aes(cut,price)) + geom_bar(stat= "identity", fill= "snow3")+ theme_get()
 
 ```
 
 **standard errors**
 Using this dataset also allows us to include standard error bars or confidence intervals in our plots. We do this by adding a layer called `geom_errorbar(aes(ymin, ymax))`. 
 ```{r}
+# setting a standard error bar
+# y min is the minimum number and y max is the maximum number 
 
+ggplot(pricebyCut, aes(cut,price)) + geom_bar(stat= "identity", fill= "snow3")+ theme_get()+ geom_errorbar(aes(ymin= price-se, ymax=price+se))
 ```
 
 ```{r}
+# customize the error bar 
 
+ggplot(pricebyCut, aes(cut,price)) + 
+  geom_bar(stat= "identity", fill= "snow3", width=.5) + 
+  theme_get()+ 
+  geom_errorbar(aes(ymin= price-se, ymax=price+se, width= .5))
+
+# width also work in geom_bar and geom_histogram
+```
+
+```{r}
+# using alpha to make bar more transparent
+
+ggplot(pricebyCut, aes(cut,price)) + 
+  geom_bar(stat= "identity", fill= "black", width=.5, alpha=.3) + 
+  theme_get()+ 
+  geom_errorbar(aes(ymin= price-se, ymax=price+se, width= .5))
 ```
 
 Things I included:
@@ -209,8 +250,23 @@ Things I included:
 
 **adding lines** (hline/vline)
 ```{r}
-
+# Adding a horizontal line through the bar graph and customize the line 
+ggplot(pricebyCut, aes(cut,price)) + 
+  geom_bar(stat= "identity", fill= "black", width=.5, alpha=.3) + 
+  theme_get()+ 
+  geom_errorbar(aes(ymin= price-se, ymax=price+se, width= .5))+
+  geom_hline(yintercept = 2000, size = 1, linetype= "dashed", color= "purple")
 ```
+
+```{r}
+# Adding a vertical line through the bar graph and customize the line 
+ggplot(pricebyCut, aes(cut,price)) + 
+  geom_bar(stat= "identity", fill= "black", width=.5, alpha=.3) + 
+  theme_get()+ 
+  geom_errorbar(aes(ymin= price-se, ymax=price+se, width= .5))+
+  geom_hline(xintercept = "Good", color= "chartreuse") 
+```
+
 Things I changed: 
 - alpha: how transparent a layer is
 - width: how wide something is (can be applied to bars, error bars)
@@ -222,23 +278,73 @@ Things I changed:
 ### Practice: 
 1. Create a bar graph for the cut column. 
 ```{r}
+ggplot(diamonds, aes(cut)) + geom_bar()
 
 ```
 
 2. Change the x and y labels to something that is more informative. 
 ```{r}
+ggplot(diamonds, aes(cut))+ 
+  geom_bar() +
+  labs(x= "Quality of the Cut", y= "Frequency", title="Distribution of Diamond Cut")
 
 ```
 
-### Adding a third variable to a bar graph: 
 ```{r}
+summary(as.factor(diamonds$cut))
+```
 
+### Adding a second variable to a bar graph: 
+```{r}
+ggplot(diamonds, aes(price, fill=cut))+ 
+  geom_histogram(position= position_dodge()) 
+
+# position_dodge() make a individual bar for each cut so they are not stack 
+```
+
+```{r}
+# using position_dodge() on a bar graph 
+ggplot(diamonds, aes(cut, fill=color))+ 
+  geom_bar(position= position_dodge()) 
 ```
 
 **Scatter plot**
 We can make scatter plots using the argument `geom_point()`. We'll make a graph of carat by price. 
 ```{r}
+ggplot(diamonds, aes(carat, price))+ 
+  geom_point()
+```
 
+```{r}
+# Using fill and color 
+ggplot(diamonds, aes(carat, price))+ 
+  geom_point(color="pink")
+```
+
+```{r}
+# using different color for each dot
+ggplot(diamonds, aes(carat, price, color=color))+ 
+  geom_point()
+```
+
+```{r}
+# change shape of the dots
+ggplot(diamonds, aes(carat, price))+ 
+  geom_point(shape=8)
+```
+
+# Jitter() add space between the points
+```{r}
+data(mtcars)
+ggplot(mtcars, aes(cyl, gear))+ 
+  geom_jitter() #misleading though because the position of the dot are inccorect
+```
+
+```{r}
+# Adding a boxplot in the graph
+ggplot(mtcars, aes(cyl,mpg))+ 
+  geom_boxplot() +
+  geom_jitter()
 ```
 
 ### Practice
@@ -257,16 +363,36 @@ We can make scatter plots using the argument `geom_point()`. We'll make a graph 
 **Inserting a regression line**
 We can include a regression line into our graph using `geom_smooth()`.
 ```{r}
+ggplot(diamonds, aes(price, carat))+ 
+  geom_point()+
+  geom_smooth(method= "lm")
 
 ```
+
 We can customize whether the regression line has a confidence interval surrounding it. You may be asking yourself **what confidence interval**. Carat and price are very highly correlated. let's use an mtcars example to see how we can change it. 
 w/ 95% confidence interval shaded
 ```{r}
-
+# using se 
+ggplot(diamonds, aes(price, carat))+ 
+  geom_point()+
+  geom_smooth(method= "lm", se=FALSE)
 ```
 **Changing scatterplots**
 you can change the outline of a dot using "color" 
 ```{r}
+ggplot(mtcars, aes(mpg, hp, color= as.factor(cyl)))+ 
+  geom_point()+
+  geom_smooth(method= "lm", se=FALSE)
+```
+
+```{r}
+# changing color scheme
+ggplot(mtcars, aes(mpg, hp, color= as.factor(cyl)))+ 
+  geom_point()+
+  geom_smooth(method= "lm", se=FALSE)+
+  scale_color_manual(values=c("black", "orange", "purple"))
+
+# Google 'cookbook for R'
 
 ```
 
