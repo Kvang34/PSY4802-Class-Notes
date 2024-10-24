@@ -258,14 +258,14 @@ ggplot(pricebyCut, aes(cut,price)) +
   geom_hline(yintercept = 2000, size = 1, linetype= "dashed", color= "purple")
 ```
 
-```{r}
+
 # Adding a vertical line through the bar graph and customize the line 
 ggplot(pricebyCut, aes(cut,price)) + 
   geom_bar(stat= "identity", fill= "black", width=.5, alpha=.3) + 
   theme_get()+ 
   geom_errorbar(aes(ymin= price-se, ymax=price+se, width= .5))+
   geom_hline(xintercept = "Good", color= "chartreuse") 
-```
+
 
 Things I changed: 
 - alpha: how transparent a layer is
@@ -350,7 +350,8 @@ ggplot(mtcars, aes(cyl,mpg))+
 ### Practice
 - make a scatter plot of the x and y variables in the diamonds dataset. 
 ```{r}
-
+ggplot(diamonds, aes(price, carat))+
+  geom_boxplot()
 ```
 
 - modify the graph to include at least 2of the style elements we talked about
@@ -399,57 +400,136 @@ ggplot(mtcars, aes(mpg, hp, color= as.factor(cyl)))+
 ####Practice: 
 1. Create a scatter plot of the table and carat variables. 
 ```{r}
-
+ggplot(diamonds, aes(carat, table)) + 
+  geom_point()
 ```
 2. Change the color of the points to your favorite color. 
 ```{r}
-
+ggplot(diamonds, aes(carat, table)) + 
+  geom_point(color= "blue")
 ```
 3. Change the shape of the points. 
 ```{r}
-
+ggplot(diamonds, aes(carat, table)) + 
+  geom_point(color="blue", shape=4)
 ```
 4. Add a line of best fit to your scatter plot. 
 ```{r}
+ggplot(diamonds, aes(carat, table)) + 
+  geom_point(color="blue", shape=4)+
+  geom_smooth(method="lm", se=FALSE)
 
+```
+
+```{r}
+ggplot(diamonds, aes(carat, table)) + 
+  geom_point(color="blue", shape=4)+
+  geom_smooth(se=FALSE) 
+
+# When we run the code, the line gets bumpy if we remove "method=lm "
+```
+
+```{r}
+ggplot(diamonds, aes(carat, table)) + 
+  geom_point(color="blue", shape=4)+
+  geom_smooth(se=FALSE)
+
+# the "se=FALSE" get rid of the confidence interval 
 ```
 
 **Line graphs**
-Line graphs follow a similar to scatterplots, but use the geom_line function. Color customizations follow the same rules as scatterplots. 
+Line graphs follow a similar to scatterplots, but use the *geom_line()* function. Color customizations follow the same rules as scatterplots. 
 include group in aes
 ```{r}
+ggplot(diamonds, aes(carat, price))+
+  geom_line()+
+  theme_classic()
+
+# Problem: Small window to see the values 
+```
+ 
+```{r}
+# Using a small data
+ggplot(mtcars, aes(mpg, hp))+
+  geom_line()+
+  theme_classic()
+
+# The data is easier to read for smaller data set. 
 
 ```
-I won't talk as much about these graphs, but happy to answer questions. 
+
+```{r}
+# Using cyl as a third variable 
+ggplot(mtcars, aes(mpg, hp, group=cyl))+
+  geom_line(aes(color=cyl))+
+  theme_classic()
+
+```
+
+I won't talk as much about these graphs, but happy to answer questions.
 
 **Box plots**
 I hope that the pattern is starting to make sense, but the only difference with a box plot is that you'll use `geom_boxplot()`. 
 ```{r}
-
-```
-
-```{r twoVariableBoxplot}
+ggplot(diamonds, aes(price))+
+  geom_boxplot()
 
 ```
 
 ```{r}
+# Add fill and color  and layer
+ggplot(diamonds, aes(price))+
+  geom_boxplot(fill= "slategrey", color="midnightblue", alpha=0.5)+
+  theme_apa()
+
+# a line for the mean 
+ggplot(diamonds, aes(price))+
+  geom_boxplot(fill= "slategrey", color="midnightblue", alpha=0.5)+
+  theme_apa()+
+  geom_vline(xintercept=mean(diamonds$price))
+
+```
+
+```{r  twoVariableBoxplot}
+# Add another variable 
+ggplot(diamonds, aes(clarity, price))+
+  geom_boxplot()+
+  theme_apa()
+
+```
+
+```{r}
+# Example using mtcars data
+
+ggplot(mtcars, aes(mpg))+
+  geom_boxplot()
 
 ```
 
 ### Practice: 
 1. Create a boxplot for carat.
 ```{r}
-
+ggplot(diamonds, aes(carat))+
+  geom_boxplot()
 ```
 
 2. Create boxplots of carat for each level of cut.
 ```{r}
-
+ggplot(diamonds, aes(carat, cut))+
+  geom_boxplot()
 ```
 
 3. **Bonus** play around with fill and color. What changes about your boxplots? 
 ```{r}
+ggplot(diamonds, aes(carat, cut))+
+  geom_boxplot(color="navy", fill="lightblue")
+```
 
+```{r}
+# geom_violin add layer to the data
+ggplot(diamonds, aes(carat, cut))+
+  geom_boxplot(color="navy", fill="lightblue") +
+  geom_violin()
 ```
 
 ## Learning Outcome 4:Incorporate third variables into graphs
