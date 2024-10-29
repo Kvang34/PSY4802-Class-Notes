@@ -76,13 +76,13 @@ we need to make a graph and save it (we'll use carat and price)
 ```{r}
 mpgByCyl <- mtcars %>%
   group_by(cyl)%>%
-  summarize(mean = mena(mpg))
+  summarize(mean = mean(mpg))
 
-ggplot(mtcars, aes(cyl, mean)) + 
+ggplot(mpgByCyl, aes(cyl, mean)) + 
   geom_bar(stat="identity")
 
-mpg< - ggplot(mtcars, aes(mpg))+
-  geom_bar) 
+mpg <- ggplot(mtcars, aes(mpg))+
+  geom_bar() 
 mpg+facet_wrap(~cyl)
   
 ```
