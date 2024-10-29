@@ -604,9 +604,10 @@ ggplot(diamonds, aes(price, carat, color = color))+
 ```
 
 ```{r}
-ggplot(diamonds, aes(price, carat, color = color))+ 
-  geom_histogram()+
-  scale_color_brewer(palette = "Set3")
+ggplot(diamonds, aes(price, fill= color)) + 
+  geom_histogram(bins = 100) +
+  theme_classic()+
+  scale_fill_brewer(palette = "Set3")
 ```
 
 Viridis
@@ -645,7 +646,9 @@ I'll also show you how you can get color pallets online and find the associated 
 ```{r}
 # changing the factor 
 mtcars$cyl <- as.factor(mtcars$cyl)
-ggplot(mtcars, aes(cyl, mpg, color=color))+ 
+
+# scatterplot 
+ggplot(mtcars, aes(cyl, mpg))+ 
   geom_point()
 
 ```
@@ -654,9 +657,9 @@ ggplot(mtcars, aes(cyl, mpg, color=color))+
 # bar graph 
 mpgByCyl <- mtcars %>%
   group_by(cyl)%>%
-  summarize(mean = mena(mpg))
+  summarize(mean = mean(mpg))
 
-ggplot(mtcars, aes(cyl, mean)) + 
+ggplot(mpgByCyl, aes(cyl, mean)) + 
   geom_bar(stat="identity")
 
 # more appropriate to use a boxplot
