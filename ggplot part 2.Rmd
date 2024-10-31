@@ -51,22 +51,39 @@ ggplot(diamonds, aes(carat, price, color=cut))+
 
 1) make a graph of disp and hp from mtcars. Include miles per gallon as a third variable
 ```{r}
+data(mtcars)
+ggplot(mtcars, aes(disp, hp, color=mpg))+ 
+  geom_point()
 
+
+# Use discrete = FALSE because the variable is continuous 
 ```
 
 2) Move the legend to the top of the graph
 ```{r}
-
+data(mtcars)
+ggplot(mtcars, aes(disp, hp, color=mpg))+ 
+  geom_point()+ 
+  theme_classic()+
+  theme(legend.position= "top")
 ```
 
 3) Remove the legend from the graph 
 ```{r}
-
+data(mtcars)
+ggplot(mtcars, aes(disp, hp, color=mpg))+ 
+  geom_point()+
+  theme_classic()+
+  theme(legend.position= "none")
 ```
 
 4) Change the title of the legend
 ```{r}
-
+data(mtcars)
+ggplot(mtcars, aes(disp, hp, color=mpg))+ 
+  geom_point()+ 
+  theme_classic()+
+  scale_color_viridis(discrete= FALSE, option="H", name= "Displacement and Horse Power")
 ```
 
 ### Learning Outcome 2: Describe how to use facet wrap
@@ -84,11 +101,29 @@ ggplot(mpgByCyl, aes(cyl, mean)) +
 mpg <- ggplot(mtcars, aes(mpg))+
   geom_bar() 
 mpg+facet_wrap(~cyl)
-  
 ```
-then we'll use cut to create the facets
+
 ```{r}
 
+# Histogram 
+ggplot(mtcars, aes(mpg))+ 
+  geom_histogram(bins= 5, fill="blue")+
+  facet_wrap(~cyl)+
+  ylab(label= "frequency")+
+  xlab(label="miles per gallon")
+  
+```
+then we'll use cut to create the facets wrap graph
+```{r}
+# option 1
+labels<- c("4"= "4 cylinder", "6"= "6 cylinder", "8"= "8 cylinder")
+
+ggplot(mtcars, aes(mpg))+ geom_histogram(bins= 5, fills= "blue")+  facet_wrap(~as.factor(cyl), labeller= as_labeller(labels))
+
+# option 2
+mtcars$cyl <- as.factor(mtcars$mpg)
+levels(mtcars$cyl) <- c("4 cylinders", "6 cylinders", "8 cylinders")
+ggplot(mtcars, aes(mpg))+ geom_histogram()+facet_wrap(~cyl)
 ```
 
 ```{r}
@@ -98,22 +133,50 @@ then we'll use cut to create the facets
 ### Practice: 
 1) create a facet wrap graph to generate a scatterplot of mpg and hp based on the number of cylinders a car has
 ```{r}
+ggplot(mtcars, aes(mpg, hp))+
+  geom_point()+
+  facet_wrap(~cyl, labeller= as_labeller(labels))+
+  theme_classic()+
+  ylab(label= "horse power")+
+  xlab(label= "miles per gallon")
+```
+
+```{r}
+# changing the font and size 
+prettyGraph <- ggplot(mtcars, aes(mpg, hp))+
+  geom_point()+
+  facet_wrap(~cyl, labeller= as_labeller(labels))+
+  theme_classic()+
+  ylab(label= "horse power")+
+  xlab(label= "miles per gallon")+
+  scale_color_viridis(discrete= FALSE, option = "D")
+
+finalPretty <- prettyGraph + theme(legend.position= "none", text = element_text(family = "Times New Roman", size= 18))
 
 ```
 
 ### Learning Outcome 3: Explain how to export graphs
 to export graphs, I use the command `ggsave()`
 Specifically, you can use the following arguments: 
-`ggsave("name of graph", width, height, units, dpi)`
+`ggsave("name you want to give the graph", width, height, units, dpi)`
 ```{r}
 
+# How to save and export your graph on the computer 
+
+ggsave("PSY4802-FinalPrettyGraph.tiff", width= 10, height=10, units="in", dpi= 300)
+
+# dpi is the resolution 
+
+# Save without project by using *getwd()*
 ```
 I don't usually specify a path in ggsave, but make sure my r code is in the directory I'd like it to be saved in. you can check your working directory by using this code
 ```{r}
 
+
 ```
 you can change your working directory using this code: 
 ```{r}
+
 
 ```
 
