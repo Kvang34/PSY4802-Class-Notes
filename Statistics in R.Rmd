@@ -20,10 +20,42 @@ We'll simulate data to use throughout today's class:
 To do this, we'll use a couple of functions we've used before: `set.seed()`, `rep()`, and `sample()`
 
 **Question**: What research question do we want to focus on? 
-```{r}
 
+Research questions: 
+1) What factors are related to the number of penguins born in a year?
+```{r}
+# number of observational variables(n) : 1000
+
+# set.seed(n) ensure that all of our number are at the same location
+set.seed(137)
+# rnorm(1) 
+
+# create a data set
+penguinsBorn <- sample(14400:(14400*10), size = 1000, replace = TRUE)
+
+# Indicator variable for year
+year <- as.factor(1025:2024)
+# this tells us that we have collected the data from 1025 to 2024
+
+# Creating the variables
+temperature<- sample(-40:50, 1000, replace=TRUE)#quantitative
+
+fishAvailable<- sample(50000:1000000, 1000, replace=TRUE)#quantitative
+
+polarbearPresence<- sample(c("yes", "no"), 1000, replace=TRUE, prob = c(.65,.35))#qualitative (yes or no); want a prob of 65 be true and 34 be false
+
+emotionsOfPenguins<- sample(c("dangerously depressed", "very sad", "moderately sad", "neutral", "moderately happy", "very happy", "dangerously happy"), 1000, replace=TRUE)#ordinal
+
+region<- sample(c("Southern Africa", "Oceania", "Antarctica", "South America"), 1000, replace= TRUE) #qualitative
+
+ratioOfPenguins<- rnorm(1000, mean=.5, sd= .1) #quantitative (0=all male; 1= all female)
 ```
 
+```{r}
+# Create a data frame
+penguinsData <- cbind.data.frame(year, penguinsBorn, emotionsOfPenguins, fishAvailable, polarbearPresence, ratioOfPenguins, region, temperature)
+
+```
 
 ### Learning Outcome 1: Obtaining descriptive statistics in R
 We've gone through some of these already, but I want to make sure we're on the same page. For descriptive statistics, we'll mostly focus on the measures of central tendency and measures of variability. 
@@ -32,14 +64,33 @@ We've gone through some of these already, but I want to make sure we're on the s
 
 ##### Mean 
 ```{r}
+# mean(dataName$columnName)
+mean(penguinsData$fishAvailable)
 
 ```
 ##### Median
 ```{r}
+# median(dataName$columnName)
+median(penguinsData$fishAvailable)
 
 ```
 ##### Mode
 ```{r}
+# mode(dataName$columnName)
+mode(penguinsData$fishAvailable)
+
+# install the modeest library
+library(modeest)
+mfv(penguinsData$fishAvailable)
+```
+
+```{r}
+# using pipes
+# you can summary by region as well using pipe by using 'group_by' function
+library(tidyverse)
+penguinsData %>%
+  group_by(as.factor(region)) %>%
+  summarize(meanFish = mean(fishAvailable), mediumFish = median(fishAvailable))
 
 ```
 
@@ -47,27 +98,46 @@ We've gone through some of these already, but I want to make sure we're on the s
 
 ##### Range
 ```{r}
+# range(dataName$columnName)
+range(penguinsData$fishAvailable)
+
+# You can calculate the range by doing this 
+range(penguinsData$fishAvailable)[2] - range(penguinsData$fishAvailable)[1]
+
+# or 
+
+999762 - 50533 
 
 ```
 
 ##### Interquartile Range
 ```{r}
+# IQR(dataName$columnName)
+IQR(penguinsData$fishAvailable)
 
 ```
 
 ##### Standard Deviation
 ```{r}
-
+# sd(dataName$columnName)
+sd(penguinsData$fishAvailable)
 ```
 
 ##### Variance
 ```{r}
+# var(dataName$columnName) or sd(dataName$columnName)^2
 
+var(penguinsData$fishAvailable)
+
+# or 
+
+sd(penguinsData$fishAvailable)^2
 ```
 
 ##### Summary
 ```{r}
-
+# summary(dataName$columnName)
+summary(penguinsData$fishAvailable)
 ```
 
 #### Z Score
@@ -75,20 +145,35 @@ We've gone through some of these already, but I want to make sure we're on the s
 The other thing that we'll put in this section is how to create a z score in your data. This allows us to view one score relative to others, even if they are collected from different distributions
 
 ```{r}
+# scale(dataName$columnName) function 
 
+scale(penguinsData$fishAvailable)
 ```
 
 ##### Learning Outcome 1 Practice
 1) calculate the mean, median, and mode for any data in the our Dataset
 ```{r}
+# mean
+mean(penguinsData$temperature)
 
+# median 
+median(penguinsData$temperature)
+
+# mode
+mfv(penguinsData$temperature)
 ```
 
-2) what do you notice about these scores? (are they the same? different?)
+2) what do you notice about these scores? (are they the same? different?) *They are different*
 
 3) create z scores for any data in our Dataset. Interpret what participant 3's z score means. 
 ```{r}
+# zscore for temperature 
+scale(penguinsData$temperature)
 
+# The zscore for participant 3 is 
+scale(penguinsData$temperature)[3]
+
+# This tells us that 
 ```
 
 ```{r}
