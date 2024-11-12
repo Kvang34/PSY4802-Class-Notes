@@ -1,434 +1,554 @@
 ---
-title: "Dataset Manipulation"
+title: "statistics in R"
 author: "Amanda Mae Woodward"
-date: "2024-10-01"
+date: "2024-11-05"
 output: html_document
 ---
 
-#Learning Outcomes: 
-By the end of this class, students should be able to:
-- Transform wide data to long
-- Transform data from long to wide
-- Join data sets in R
-- Use functions to clean data
-- Use pipes to clean data
+# Learning Outcomes:
+By the end of today's class, students should be able to: 
+- obtain descriptive statistics in R
+- conduct common parametric analyses in R
+- conduct common nonparametric analyses in R
 
-We've **already**started manipulating datasets in R. We've talked about how to add columns, how to fill those columns with indexing or for loops, and how to subset data. Today, we'll go through a few other ways to manipulate datasets. But first, we need to go through adding data to R. After all, you aren't going to be using built in data to write your papers.
+**Disclaimer:** Covering every type of analysis in R could be an entire course by itself. Today, we'll cover **some** analyes you can do. If there are additional analyses you'd like to cover, please let me know and I'm happy to upload supplemental code or cover it in a later class (there is flexibility in the last couple of weeks!). 
 
-Uploading data is one of the few things I use a "point and click" method for. Partially, because the point and click method allows you to check if your data are uploading the way you want them to. Today, we'll be using a .csv file, but you can upload other sorts of files. 
+Additionally, we will **not** cover interpretations in depth in this class. The goal is to teach you how to use R to run the tests, and adding interpretations for each test could make this into several semester long courses. However, if you have questions about how to interpret statistics, please let me know and I can adjust our course material. I am happy to talk about interpretations in office hours, or you will learn about them in your statistics courses.
 
-You'll want to press the "import dataset" button above your global environment. In this case, you can use the "from text  (base)" option. This should open a window with your files. Select the appropriate file and it should load a preview. It has options where you can make sure your columns have names, missing values are accounted for, and a few other options. 
+We'll simulate data to use throughout today's class:
 
-Once you press okay, you'll see your dataset pop up in the console below. You should move it to your .Rmd file and name it however you'd like. I have a tendency to use "dat", though it's not the most informative. Feel free to use your own name, but remember that whatever you call it here is how you'll refer to it for the rest of the lesson. 
+To do this, we'll use a couple of functions we've used before: `set.seed()`, `rep()`, and `sample()`
+
+**Question**: What research question do we want to focus on? 
+
+Research questions: 
+1) What factors are related to the number of penguins born in a year?
+```{r}
+# number of observational variables(n) : 1000
+
+# set.seed(n) ensure that all of our number are at the same location
+set.seed(137)
+# rnorm(1) 
+
+# create a data set
+penguinsBorn <- sample(14400:(14400*10), size = 1000, replace = TRUE)
+
+# Indicator variable for year
+year <- as.factor(1025:2024)
+# this tells us that we have collected the data from 1025 to 2024
+
+# Creating the variables
+temperature<- sample(-40:50, 1000, replace=TRUE)#quantitative
+
+fishAvailable<- sample(50000:1000000, 1000, replace=TRUE)#quantitative
+
+polarbearPresence<- sample(c("yes", "no"), 1000, replace=TRUE, prob = c(.65,.35))#qualitative (yes or no); want a prob of 65 be true and 34 be false
+
+emotionsOfPenguins<- sample(c("dangerously depressed", "very sad", "moderately sad", "neutral", "moderately happy", "very happy", "dangerously happy"), 1000, replace=TRUE)#ordinal
+
+region<- sample(c("Southern Africa", "Oceania", "Antarctica", "South America"), 1000, replace= TRUE) #qualitative
+
+ratioOfPenguins<- rnorm(1000, mean=.5, sd= .1) #quantitative (0=all male; 1= all female)
+```
 
 ```{r}
-#import the dataset from text base 
-#copy and paste the file, which is found in the console 
-
-#aggressionData <- read.csv("C:/Users/vang3434/Downloads/PSY4802-AggressionSampleData.csv")
-
-#reccomend using readr to make the data accessible to everyone
-library(readr)
-aggressionDat<- 
-  read_csv("PSY4802-AggressionSampleData.csv")
+# Create a data frame
+penguinsData <- cbind.data.frame(year, penguinsBorn, emotionsOfPenguins, fishAvailable, polarbearPresence, ratioOfPenguins, region, temperature)
 
 ```
-getting/setting wd
-```{r}
-#to get the data
-getwd()
 
-#to save the data into a desktop/folder so you don't have to move it 
-setwd(dir = "C:/Users/vang3434/Downloads")
+### Learning Outcome 1: Obtaining descriptive statistics in R
+We've gone through some of these already, but I want to make sure we're on the same page. For descriptive statistics, we'll mostly focus on the measures of central tendency and measures of variability. 
+
+#### Central Tendency
+
+##### Mean 
+```{r}
+# mean(dataName$columnName)
+mean(penguinsData$fishAvailable)
+
+```
+##### Median
+```{r}
+# median(dataName$columnName)
+median(penguinsData$fishAvailable)
+
+```
+##### Mode
+```{r}
+# mode(dataName$columnName)
+mode(penguinsData$fishAvailable)
+
+# install the modeest library
+library(modeest)
+mfv(penguinsData$fishAvailable)
 ```
 
-
-### Learning Outcome #1: Transform wide data to long
-There are many **many** ways to transform data from wide to long and vice versa. Sometimes, the version you pick is based on what other data you have. 
-
-We also need to determine what type of data we have. To make sure we're all on the same page, a quick review: 
-**Long data:** have multiple rows per participants. Each row represents a unique measurement. (in our example, each participant would have two rows: the baseline measure and the measure after the game). 
-**Wide data:** There is only one row per participant. Each column represents a unique measurement. (in our example, the data is currently in wide format).
-
-Knowing the type of data you are using and how to change it is important because you may need to change it depending on the analyses you'd like to run and how you'd like to graph the data.  
-
-#### Wide to Long
-As mentioned above, the current data are in wide format. We can change this to long format a couple of ways. We're only going to go through the three that I see most often. As a warning, I'm starting with the easiest, and working my way down to the least intuitive. 
-
-**pivot_longer**
-I think this is the easiest version to use. We'll need to use the "tidyverse" library. 
 ```{r}
-#install tidyverse library
+# using pipes
+# you can summary by region as well using pipe by using 'group_by' function
 library(tidyverse)
-
-```
-`pivot_longer()` uses the following structure: 
-`pivot_longer(dataframe, columns containing wide data, names_to, values_to)`
-names_to: specifies what you'd like to call the column that contains the previous column names
-values_to: specifies the name of the column where the scores go
-```{r}
-#long data 
-aggressionLong <- pivot_longer(aggressionDat, c("baselineAggression", "postAggression"), names_to="timePoint", values_to="aggressionScore")
-
-#In here, we change the name of the column to "timepoint" and the values to "aggressionScore"
-#When we run the code, we know it is a long data when the two line for one particpants is next to each other 
-# newDataName <- pivot_longer(dataName, c(), names_to= "newColumnName", values_to= "valueNames)"
-
-#another way of doing this is..
-aggressionLongA <- aggressionDat %>% 
-  pivot_longer(c("baselineAggression","postAggression"), names_to="timePoint", values_to="aggressionScore")
-
-# newDataName <- dataName %>%
-  #pivot(!columnToIgnore, names_to="newColumnName", values_to="valueNames)
-
-
-# newDataName <- dataName %>% 
-  #pivot_longer(dataName, c(colnames(dataName)[first column:last column]), names_to="new column name", values_to="valueNames")
-```
-**Note:** remember to save the data to your environment. 
-
-#### Learning Outcome 1 Practice
-1. Open the relig_income dataset.
-```{r}
-data("relig_income")
-
-#to learn more about the data, we could write "?relig_income" in the console
-```
-
-2. Restructure the dataset so that it is in long format. 
-```{r}
-colnames(relig_income)
-
-religionIncomeLong <- pivot_longer(relig_income, c("<$10k", "$10-20k","$20-30k","$30-40k","$40-50k", "$50-75k", "$75-100k","$100-150k", ">150k"), names_to= "levels of income", values_to = "income freqency")
+penguinsData %>%
+  group_by(as.factor(region)) %>%
+  summarize(meanFish = mean(fishAvailable), mediumFish = median(fishAvailable))
 
 ```
 
-**gather** 
-`gather()` is another function in tidyr that can be used to.
-gather has the following arguments `gather(dataframe, key, value, columns to act on)`
-key- what you'd like the column containing old column names to be called
-value- what you'd like the scores column to be called
+#### Variability
 
+##### Range
 ```{r}
-#this is another way to go from wide to long data format 
+# range(dataName$columnName)
+range(penguinsData$fishAvailable)
 
-#first, install the tidyr library 
-library(tidyr)
+# You can calculate the range by doing this 
+range(penguinsData$fishAvailable)[2] - range(penguinsData$fishAvailable)[1]
 
-aggressionLong2 <- gather(aggressionDat, key="timepoint", value="aggressionScore", c("baselineAggression","postAggression"))
-#key is the new column name 
-#value are the name of values in the column 
+# or 
+
+999762 - 50533 
 
 ```
 
-**melt**
-`melt()` is a function in the reshape2 library. It's another way to create long data
+##### Interquartile Range
 ```{r}
-#install the reshape2 library 
-library(reshape2)
-
-```
-`melt()` uses the following arguments: 
-`melt(dataframe, id.vars, measure.vars, variable.name, value.name)`
-```{r}
-aggressionLong3 <- melt(aggressionDat, id.vars= c("subjNo","ageGroup","parentReportGender", "condition"), measure.var= 
-c("baselineAggression","postAggression"),
-variable.name="timepoint", value.name="aggressionScore")
-
-#id.var= are the columns we don't change 
-#measure.var= are the columns we will change
-```
-
-### Learning Outcome 2: Transform data from long to wide
-As above, we'll restructure the data in three ways. Again, some ways are more intuitive than others, and you just need to know how to use one (but it's good to be familiar with multiples). 
-
-**pivot_wider**
-The pair function for pivot_longer. It has the following arguments: 
-`pivot_wider(dataset, id columns, names_from, values_from)`
-```{r}
-#Open the billboard data 
-data(billboard)
-
-#Looking at the data, it is a wide format 
-#Before we transform the data, we should decided what column should be changed in the data.In this data, we would change the week column and add a ranking column 
-
-#transforming a long to wide data 
-
-
-aggressionWide <- pivot_wider(aggressionLong, id_cols= c(colnames(aggressionLong)[1:4]), names_from="timePoint", values_from="aggressionScore")
+# IQR(dataName$columnName)
+IQR(penguinsData$fishAvailable)
 
 ```
 
-**spread** 
-is the pair function for gather. It has the following arguments: 
-`spread(data, key, value, columns to make wide)`
-key = timepoint; value = aggression score
+##### Standard Deviation
 ```{r}
-aggressionWide2 <- spread(aggressionLong, key= "timePoint", value=aggressionScore)
+# sd(dataName$columnName)
+sd(penguinsData$fishAvailable)
 ```
 
-**dcast**
-cast functions are the pairs to melt. `dcast()` specifically is used for dataframes. 
-dcast has the following arguments: 
-`dcast(data, formula)`
+##### Variance
 ```{r}
-#datWide3<- dcast(aggressionLong3, formula= subjNo+ ageGroup+parentReportGender+condition~variable)
+# var(dataName$columnName) or sd(dataName$columnName)^2
 
-#format: newDataName <- dcast(dataName, formula= list the column that change ~ column that don't change)
+var(penguinsData$fishAvailable)
 
-aggressionWide3 <- dcast(aggressionLong, formula= subjNo + ageGroup + parentReportGender + condition ~ timePoint)
-```
-**Note:** dcast is really not intuitive. I pretty much determine the correct order through trial and error every time. 
+# or 
 
-#### Learning Outcome 2: Practice
-1. Open the ChickWeight dataset.
-```{r}
-data(ChickWeight)
+sd(penguinsData$fishAvailable)^2
 ```
 
-2. Convert it from long to wide format. 
+##### Summary
 ```{r}
-colnames(ChickWeight)
-chickWide <- pivot_wider(ChickWeight, id_cols = c("Chick","Diet"), names_from = "Time", values_from="weight")
+# summary(dataName$columnName)
+summary(penguinsData$fishAvailable)
 ```
 
-3. Convert from wide to long. 
+#### Z Score
+
+The other thing that we'll put in this section is how to create a z score in your data. This allows us to view one score relative to others, even if they are collected from different distributions
+
 ```{r}
-chickLong <- pivot_longer(chickWide, cols= c(colnames(chickWide)[3:14]), names_to = "Time", values_to = "Weight")
+# scale(dataName$columnName) function 
+
+scale(penguinsData$fishAvailable)
 ```
 
-
-### A note on pipes for data restructuring
-A lot of the functions we've covered above can also be used with pipes. Here, we'll go through some ways that you can use pipes to restructure your data. 
-
-First, remember that pipes are used in the following way 
-
-`dataframe %>% function(function arguments)`
-
-you can use some of the commands we've already used in a different structure
-**pivot_longer w/pipes**
-`data %>% pivot_longer(columns used, name for "name" column, name for "value column")`
-
+##### Learning Outcome 1 Practice
+1) calculate the mean, median, and mode for any data in the our Dataset
 ```{r}
-chickLong1 <- chickWide %>% 
-  pivot_longer(cols= c(colnames(chickWide)[3:14]), names_to= "time", values_to= "weight") %>%
-  filter(Chick==1)
+# mean
+mean(penguinsData$penguinsBorn)
+
+# median 
+median(penguinsData$penguinsBorn)
+
+# mode
+mfv(penguinsData$penguinsBorn)
+
 
 ```
 
-###Practice: 
+2) what do you notice about these scores? (are they the same? different?) *They are different*
 
-1) open sleep data set
+3) create z scores for any data in our Dataset. Interpret what participant 3's z score means. 
 ```{r}
+# zscore for temperature 
+scale(penguinsData$penguinsBorn)
+```
+
+```{r}
+# The zscore for participant 3 is 
+scale(penguinsData$penguinsBorn)[3]
+
+# This tells us that the zscore for participant 3 is -0.06. This means that participant 3 was pretty close to the mean, about -.06 below the mean. 
+```
+
+ *Challenge* Graph your data and include the mean median and mode on the graph 
+```{r}
+ggplot(penguinsData, aes(penguinsBorn))+ 
+  geom_histogram(fill= "grey", bins=100)+
+  geom_freqpoly(bins= 100)
+```
+
+```{r}
+ggplot(penguinsData, aes(penguinsBorn))+ 
+  geom_boxplot()
+
+```
+
+### Learning Outcome 2: Conduct common parametric analyses in R
+
+Now that we have covered some descriptive statistics, we'll talk about parametric ones. Parametric statistics are those that rely on assumptions to make inferences from the sample to the population. We'll go through correlations, t-tests, regression, and ANOVA. We'll go through nonparametric tests, or those that rely on less assumptions, in the next section. 
+
+#### Pearson correlation
+We'll practice running correlations using the dataset above. To do this, we'll look at the correlation between fishavaible and temperature 
+`cor(x, y)`
+```{r}
+cor(penguinsData$fishAvailable, penguinsData$temperature)
+
+# The correlation is -0.03. We do not have a linear relationship because it is negative.
+```
+**Note:** It's great that we can see the correlation between these two measures, but we don't have any additional information, ie information related to significance.We can use another function, `cor.test()`, to get information about significance.
+`cor.test(x,y)`
+```{r}
+cor.test(penguinsData$fishAvailable, penguinsData$temperature)
+
+# This give that t= -1.05, df=998, p-value= 0.29, cor= -0.03
+```
+graph
+```{r}
+ggplot(penguinsData, aes(fishAvailable, temperature))+ 
+  geom_point()+
+  theme_classic()
+
+```
+
+We can change whether we our conducting a one tailed or a two tailed test by including an additional argument "alternative." It defaults to a two tailed test, but we can specify a one tailed test in either direction ("greater" or "less") 
+```{r}
+# directional hypothesis 
+
+cor.test(penguinsData$fishAvailable, penguinsData$temperature, alternative = "greater")
+
+#  it states that the correlation is 0 - "true correlation is greater than 0"
+```
+
+### Extra Code about Correlation Tables 
+`cor()` can also be used to create correlation matrices, but need to create a dataframe that is just the variables you'd like to use. 
+`cor(data)`
+```{r}
+penguinsQuant <- penguinsData %>% 
+  select(fishAvailable, temperature, penguinsBorn)
+cor(penguinsQuant)
+
+# When we run the code, it shows that there's no correlation between our variables 
+```
+
+#### t-tests
+We can run a variety of t-tests using the same function `t.test()`. 
+
+##### one sample t-test
+A one sample t test can be computed by specifying mu in the arguments. 
+`t.test(variable, mu)`
+```{r}
+# t-test compare the average difference 
+
+# mu is the population mean
+
+t.test(penguinsData$temperature, mu= 0)
+
+# When we run the code, it tells us that we did a one sample t-test. It give us the t-value, df, and p-values. The mean of the sample is 4.4
+
+# Alternative hypothesis 
+t.test(penguinsData$temperature, mu= 0, alternative = "less")
+# p-value of 1 tells us the possibility of seeing our data if it is true. It tells us that we will possibly see our mean if our hypothesis is true. 
+
+```
+
+##### two samples t-test
+There are two ways we can use this function when we have two variables (independent or paired). The first is to type our x and y variables in as we did in the correlation function above. 
+```{r}
+# The two ways to do it:
+# t.test(DV ~ IV, data = dataName)
+# t.test(variableName1, variableName2)
+
+t.test(temperature ~ polarbearPresence, data= penguinsData)
+# Not statistically significant because p-value = 0.99
+
+```
+You'll notice that the top of the t-test output says "Welch's Two sample t-test." This R function automatically assumes that the variances of each group are unequal. If we wanted to run a traditional paired-samples t-test, we need to include another argument. 
+
+OR
+we can type them in as a formula in R. Formulas typically take the form y ~ x. To show you this example, I need to reformat our wide data to long data (using what we did earlier in class!)
+`t.test(dependent variable (y) ~ indepedent variable (x), data= dataframe)`
+
+```{r}
+t.test(temperature ~ polarbearPresence, data= penguinsData, var.equal= TRUE)
+
+```
+If our data were dependent between observations, we'll run a *paired samples t test*. The code looks pretty similar to above, but we'll use an additional argument. 
+
+let's use the sleep datset as an example
+```{r}
+summary(as.factor(penguinsData$polarbearPresence))
+
+# If they are not the same number, we can't do a peair t-test
+
 data(sleep)
+t.test(extra ~ group, data=sleep, pair= TRUE)
 ```
 
-2) identify the type of data
-```{r}
-#It is a long data
-```
-
-3) change it to the other type
-
-```{r}
-#Change from long to wide data 
-
-sleepWide <- sleep %>%
-  pivot_wider(names_from= "group", values_from= "extra")
-
-#name is the new column
-#values are argument we want to put inside the cell
-
-
-```
-4) Go back to the chick weight dataset and take all data from chick 3 and put it in wide format 
-```{r}
-data("ChickWeight")
-```
-
-```{r}
-#Column names
-colnames(ChickWeight)
-
-#Data with three chicks
-chickThree <- ChickWeight %>%
-  filter(Chick == 3)
-
-#It is a long data, so we gotta convert to a wide data 
-chickThreeWide <- chickThree %>%
-  pivot_wider(names_from = "Time", values_from="weight")
-
-```
-
-### Learning Outcome 3: Join data sets in R
-Some times, we have datasets that we need to join or merge (e.g. participant demographics in one file and responses in a second). We can combine these datasets using "join." If you've ever used/heard of SQL, join works the same way in R
-
-We'll practice on the following code: 
-Make a data frame with subject number and simulated anxiety scores
-```{r}
-subjNo <- aggressionDat$subjNo
-anxietyScore <- sample(x= 1:20, size = nrow(aggressionDat), replace= TRUE)
-
-#x is what you're sampling from 
-# size is the number of things to pull
-# replace is true 
-
-AnxietyData <- cbind.data.frame(subjNo, anxietyScore)
-
-# When we run the data, we have another graph that shows the subjNo and anxietyScore 
-
-```
-use `left_join()`
-```{r}
-
-# to combine the data together, we will use 'left_join(data we want in the front, data we want in the back/next)'
-
-library(dplyr)
-datFinal <- left_join(aggressionDat, AnxietyData)
-```
-
-`right_join()` does the same thing, but places the new column to the right. 
-
-#### Learning Outcome 3 Practice
-1. Create a dataframe (n=48) that includes subject numbers and executive function scores (ranging from 0-16).
-```{r}
-
-subjNo <- aggressionDat$subjNo 
-EF <- sample(x= 0:16, size = nrow(aggressionDat), replace= TRUE)
-EFdata <- cbind.data.frame(subjNo, EF)
-```
-
-2. Join your dataset in #1 to the original Aggression dataset. 
-```{r}
-dat <- left_join(datFinal, EFdata)
-```
-
-### Learning Outcomes 4 & 5: Use functions to clean data (and pipes)
-Now that we've covered how to restructure data, we'll talk about ways to clean it. These are just some of the functions I find myself using, and there are certainly more. This section is a bit longer, so there will be practice questions mixed in. 
-
-**Changing levels** 
-As we talked about before, there are different classes(or types) of data in R. For factors, you can change the specific levels (or categories) within the factor. 
-
-*using levels()*
-Let's take the example from our final dataset (datFinal). We can change parentReportGender to have levels of "boy" and "girl."
-we'll check what class it is first
-```{r}
-finaldata$parentReportGender
-
-# When we run the code, we have "M" and "F"
-```
-it's currently a character, so we can change it to a factor using as.factor (which we talked about last week). Then, we can use the function `levels()` to change the data. 
-
-Note: because I saved these as different columns, I can directly compare the data held in each to ensure I've changed everything correctly. 
-
-Also, keep in mind that changing levels of a factor requires you to know **know what levels are currently in your data.** You can check this by either printing the column as I've done above, or using the levels command:
-`factor(data, levels = x,y,z)`
-```{r}
-aggressionDat$parentReportGender <- as.factor(aggressionDat$parentReportGender)
-
-levels(aggressionDat$parentReportGender) <- c("girl","boy")
-
-# level (dataName$columnName) <- c(first value, second value)
-
-# Another way to do this is by
-
-aggressionDat$parentReportGender <- factor(aggressionDat$parentReportGender, levels= c("girl", "boy"))
-
-# To check the order is correct by writing 'dataName$columnName' 
-aggressionDat$parentReportGender
-
-# When we run the code, 'M' appear as 'boy' and 'F' as 'girl'
-```
-I'd recommend this version, particularly if you have a large data set. 
-
-#### Practice: 
-1. Create a column in the final dataset that contains condition as a factor. 
-```{r}
-datfinal$factors <- datfinal$condition
-
-```
-
-2. Change the levels to "e" for exclusion and "i" for inclusion. 
-```{r}
-
-datfinal$factors <- as.factor(datfinal$factors)
-
-levels(dafinal$factors) <- c("e","i")
-
-```
-
-3. Check that you have done this successfully. 
-```{r}
-datfinal$factors
-
-
-```
-
-**reordering factors**
-You may have noticed that writes levels of a factor in alphabetical order. Sometimes, this is really helpful. Other times, it can complicate statistical models and graphs because there are more meaningful ways to reorder your data. You can reorder the data using relevel. 
-It has the general structure `relevel(column, reference level)`
-```{r}
-aggressionDat <- relevel(aggressionDat$parentReportGender, ref= "girl")
-```
-If you have more levels, you can specify the order in your factor function 
-
-`factor(dataName$columnName, levels= order of levels)`
-
-#### Practice
-1. Reorder the condition variable in your final dataset so that inclusion is the reference category. 
+Finally, we some times run one tailed vs two tailed tests, just like we did with the correlations. 
 ```{r}
 
 ```
 
-**Reverse Coding**
-For those of you who have survey data, you may be interested in using a function to reverse code certain items. You can use `recode()` to do so. 
-`recode(column to be coded, what recode looks like)`
-
-I'm going to make a new column to demonstrate this.
+##### Correlation and T-test practice
+1. Open the mtcars dataset. Find the correlation between mpg and hp
 ```{r}
-aggressionDat$attention <- rep(1:6,8)
-aggressionDat$attention
-```
-To reverse code it, we would write
-`recode(data, 'how to recode')`
-There is also a recode in the car package
-```{r}
-# install the car library, but my packages doesn't have it ??
-
-library(callr)
-# aggressionDat$attention <- carl:: record(aggressionDat$attention, "6=1; 5=2; 4=3; 3=4;2=5;1=6")
-
-```
-Note: you'll notice that I wrote "car::" before the record function. This is necessary sometimes. Remember, the libraries are made by **different** people. People use the same words for different functions. So we need to tell R which of the functions we want to use. 
-
-**separate**
-we can also use separate to take information in one column and place it in multiple columns
-separate uses the following arguments:
-`separate(data, columns, into, sep)`
-let's look at the subject column in our dataset
-```{r}
-# aggressionDat %>% separate(subjNo, into = c("condition2", "subj"), sep=1)
+data(mtcars)
+cor(mtcars$mpg, mtcars$hp)
 ```
 
-**Mutate** 
-When you are cleaning data, there are occasionally instances where you need to use your current data to create new columns. Mutate can be used for many applications, including conversions (Dev Psych: Days to Months to Years approximation; Temperature from C to F).
-
-To practice using Mutate, we're going to use a messier dataset
+2. Conduct a significance test to determine if displacement and miles per gallon significantly correlated. 
 ```{r}
-data("starwars")
+cor.test(mtcars$disp, mtcars$mpg)
+# We have a significant correlation because it say there is a true correlation
+
 ```
 
-If you open the dataset, you can see that we have both height and mass variables. You can see that height is in cm, so we can convert height to inches
+3. Conduct a two-tailed t-test examining whether the average mpg differs by transmission (am). 
 ```{r}
-starwars2 <- starwars %>% mutate(meters=height*100)
+t.test(mpg ~ am, data= mtcars)
+```
+
+4. Conduct a one-tailed t-test examining whether the average displacement(disp) differs engine shape (vs). Specifically, test whether straight engines result in higher displacements.
+```{r}
+t.test(disp ~ vs, data= mtcars, alterative = "less")
+# We do less than because straight engine is 1 and tells us that straight engine have 132
 ```
 
 
+#### regression
+Back to the simulated Dataset we made. The code for a linear regression is really similar (ie identical)  to what we used for t-tests.
+`lm(DV ~ IV, data)`
+```{r}
+lm(penguinsBorn ~ fishAvailable, penguinsData)
 
+# it will give you an intercept (y-intercept) and coefficients 
 
+#  options(scipen=999) - "scipen=999" helps us remove the 
 
+```
 
+I tend to save my linear models because it allows me to do a few useful things:
+Just like we used   `summary()` to get a summary of our data, we can use the same function to learn more about our models
+```{r}
+penguinBornRegression <- lm(penguinsBorn ~ fishAvailable, penguinsData)
+summary(penguinBornRegression)
+# this will tells us the standard error, df, multiple r-squared,f-statistics, p-value
+```
+`str()` is a function that allows us to learn about the structure of our model. We can use this to get specific pieces of information, or additional information that "underlies" our model (eg residuals and fitted values)
+```{r}
+# using structure function
+str(penguinBornRegression)
+```
 
+**Multiple Regression**
+We can include additional factors and interaction terms to our models: 
+
+```{r}
+penguinsBornMult <- lm(penguinsBorn ~ fishAvailable + temperature, data=penguinsData)
+# then take a summary
+summary(penguinsBornMult)
+
+# our intercept ( <0.0000000000000002) is the only significant variable 
+```
+Using * instead of + will include both the individual predictors AND their interactions
+```{r}
+# using the interaction 
+penguinsBornInteraction <- lm(penguinsBorn ~ fishAvailable * temperature, data=penguinsData)
+# then take a summary
+summary(penguinsBornInteraction)
+
+# in one regression, it tells us how the fishavavible affect penguin born 
+# in a multiple regression, it tells us how fishavaible and temperature affect penguin born 
+# in interaction, it tells us how the change of fishavailable and change of temperature affect the penguinborn (both change together)
+# temperature (intercept) tell us the main effect of temperature alone, it is like the slope of the temperature 
+
+```
  
+The : can be used instead of + to include an interaction in your model
+```{r}
+lm(penguinsBorn ~ fishAvailable + temperature + fishAvailable:temperature, data=penguinsData)
+
+# using : to show the interaction of fishavailable and temperature as the third variable 
+
+```
+
+The class of our data and the way data are entered matter for regression models. 
+let's consider condition:
+
+Data don't really look continuous. We can change age to a factor. This will influence our output.  
+
+We may also need to change the reference level for factors.
+`relevel(dat$age, ref="x")`
+```{r}
+# regression and anova are the same 
+
+# using regression for categorical variables 
+polarBearReg <- lm(penguinsBorn ~ polarbearPresence, data= penguinsData)
+summary(polarBearReg)
+# intercept with polarbear presense is 3.19.9, while the intercept without polarbear presense is 79174.1 
+
+```
+```{r}
+
+```
+**Anova**
+There are several ways you can get Anova results in R. There are differences in the ways that they handle interactions, but they are used in the same way. We can use `aov()`, `anova()`, and `Anova()`
+
+```{r}
+"ANOVA"
+polarBearANOVA <- aov(penguinsBorn ~ polarbearPresence, data=penguinsData)
+summary(polarBearANOVA)
+# number of penguin predicted to be born= 79174.1 + 319.9
+# if the number of polarbear presence is 0, then 79174.1 + 319.9(0)
+# if the number of polarbear presence is 1, then 79174.1 + 319.9(1)
+```
+
+```{r}
+"post hoc test" #it tells us the difference between the group average
+TukeyHSD(polarBearANOVA)
+
+# another example 
+EmotionANOVA <- aov(penguinsBorn ~ emotionsOfPenguins, data=penguinsData)
+summary(EmotionANOVA)
+TukeyHSD(EmotionANOVA)
+# dangerously happy-dangerously depressed  -4802.7522, this tells us that more penguin are born when they are dangerously depressed than when they are dangerously happy 
+```
+
+```{r}
+"effect size"
+
+# install lse library
+library(lsr)
+etaSquared(EmotionANOVA)
+
+```
+
+ more predictors!
+```{r}
+EmotBearANOVA <- aov(penguinsBorn ~ emotionsOfPenguins + polarbearPresence)
+summary(EmotBearANOVA)
+
+"multiple comparisons"
+TukeyHSD(EmotBearANOVA) # if we don't specific, then we will have a list that compare the difference 
+
+multcompar <- TukeyHSD(EmotBearANOVA)
+multcompar$`emotionsOfPenguins:polarbearPresence` #allow you to look at one set of multiple comparisons
+ 
+TukeyHSD(EmotBearANOVA, "polarbearPresence")
+
+"effectsize"
+
+```
+ 
+#### Regression and ANOVA practice
+1. Use the mtcars dataset and create a linear model that predicts mpg from cylinder (cyl) and displacement. Print the results
+```{r}
+data("mtcars")
+
+summary(lm(mpg ~ cyl + disp, data=mtcars)) # cyl is seen as a continious variable, therefore it is important to be aware of the class and ensure that the info is treated this way 
+
+summary(lm(mpg ~ as.factor(cyl) + disp, data=mtcars))
+```
+
+2. Create the same model, but include an interaction term. 
+```{r}
+lm(mpg ~ as.factor(cyl)*disp, data=mtcars)
+```
+
+3. Run an ANOVA predicting hp from the transmission variable. 
+```{r}
+hpamANOVA <- aov(hp ~ am, data=mtcars)
+summary(hpamANOVA)
+
+#the ANOVA() belong to the car package
+```
+
+###Learning Outcome 3: Nonparametric analyses in R
+Nonparametric analyses are run similarly to their parametric versions. In the interest of time, we'll talk about biserial correlations, spearman correlations, Wilcoxon sign rank tests, and binomial tests. 
+
+**biserial correlations**
+Biserial correlations involve a binary outcome and a continuous variable. To run one in R, we need the ltm package. 
+```{r}
+# nonparametric is use when we have variables with ordinal data 
+
+library(ltm)
+
+```
+the function is `biserial.cor(continuous, binary)`
+```{r}
+biserial.cor(penguinsData$penguinsBorn, penguinsData$polarbearPresence, level = 2)
+
+# graph 
+library(ggplot2)
+ggplot(penguinsData, aes(penguinsBorn, polarbearPresence))+
+  geom_point()+
+  geom_smooth()
+
+```
+Mathematically, this is the same as the pearson's version. 
+```{r}
+
+```
+
+**spearman's rho**
+We can calculate spearman's rho and kendall's tau the same way. We just need to use the "method" argument for `cor.test()`
+```{r}
+library(car)
+levels(as.factor(penguinsData$emotionsOfPenguins))
+#penguinsData$emotionsQuant <- car::recode('"dangerously depressed"=1; "dangerously happy"=7; "moderately happy"=5; "moderately sad"= 2; "neutral"= 4; "very happy"= 6; "very sad"= 2')
+
+cor.test(penguinsData$emotionsOfPenguins, penguinsData$penguinsBorn, methods="spearman")
+```
+
+**Wilcoxon sign rank test**
+This is the nonparametric version of the t-test. It has the same arguments. We'll do one as an example. 
+`wilcox.test()`
+```{r}
+
+```
+
+**binomial tests**
+We use binomial tests to determine if something happens more often than chance. The function is binom.test and it has the following arguments: 
+`binom.test(successes, totalScores, probability)`
+```{r}
+
+```
+
+for instance, if we have 10 true/false statements, and get 6 right. Does this differ from chance? 
+```{r}
+
+```
+This is a two-tailed test, but can also do one tailed by specifying the alternative. 
+
+20 questions, 5 choices, and want to know probability of getting 14 correct
+```{r}
+
+```
 
 
+#### Learning Outcome 3 practice: 
+1. using the mtcars dataset, run a correlation to determine the relationship between engine shape (vs) and hp. What test did you run and why? 
+```{r}
+
+```
+
+2. Run a wilcoxon sign rank test to determine if cylinder and gears have different means. 
+```{r}
+
+```
+
+3. Run a binomial test to determine if the number of cars with manual transmission differs from chance. (hint: use the ? feature to learn more about the dataset.)
+
+```{r}
+
+```
