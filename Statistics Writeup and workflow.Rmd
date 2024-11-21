@@ -1,4 +1,4 @@
----
+insta---
 title: "Statistical Writeups and Workflows"
 author: "Amanda Mae Woodward"
 date: "2024-11-21"
@@ -83,10 +83,18 @@ Try these on your own! Create a code chunk with a graph of your favorite data th
 
 1. What happens if you use echo= FALSE? 
 no code, but get output
+```{r practice, echo= FALSE}
+data("mtcars")
+ggplot(mtcars, aes(mpg, disp))+ geom_point()+theme_classic()
+
+```
 
 2. What happens if you use include FALSE? 
 no code no output
+```{ r practice, include=FALSE}
 
+
+```
 3. Try combining multiple arguments in your code chunk (pick your favorites).
 
 ```{r tryitout, echo=FALSE, warning= FALSE, error=TRUE, message= TRUE}
@@ -122,6 +130,7 @@ the correlation is `r cor(mtcars$mpg, mtcars$hp)`
 
 ### Practice:
 Try Writing a sentence with any calculation you'd like in it.
+The mean of mpg is `r mean(mtcars$mpg)`
 
 
 #### More Resources
